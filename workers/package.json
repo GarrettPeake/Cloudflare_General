@@ -1,0 +1,10 @@
+{
+  "private": false,
+  "name": "cloudflare-application-general",
+  "version": "1.0.0",
+  "description": "Social media site for cloudflare application general section",
+  "main": "index.js",
+  "dependencies": {
+    "@cfworker/uuid": "^1.9.1"
+  }
+}
