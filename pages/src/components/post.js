@@ -80,7 +80,7 @@ export default class Post extends React.Component {
      */
     updateRemote(refresh){
         // Allow changing users by just changing path, since auth is not implemented
-        const user = window.location.pathname.substr(1);
+        const user = window.location.pathname.substr(1) || 'cloudflarerecruiting';
         // Remove empty images
         const newImages = this.state.data.images.filter(item => item);
         // Increment likes
