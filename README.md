@@ -3,7 +3,7 @@
 ### About
 This project was built as part of the application process for Cloudflare's summer 2022 recruitment process.
 It uses workers and pages to implement a serverless social media platform  
-The site is live at <tbd>
+The site is live at cloudflare-general.pages.dev
 
 ### The Process
 
@@ -17,7 +17,7 @@ The site is live at <tbd>
 * Tailwind CSS is AWESOME
 * You can push to two remote repos at once
 
-**Time this took**: Around 8 hours
+**Time this took**: Around 8 hours for the minimum, another 10 because I started having fun and thought it'd make a good portfolio piece
 > Day 1: 6 hours   
 > >  Errors with wrangler ~ 10 minutes  
 > >  Setup Dev environment ~ 30 minutes (wasted time trying to use Python, switched to Javascript)  
@@ -34,7 +34,17 @@ The site is live at <tbd>
 > Day 2: 2 hours   
 > >  Styling (Haven't honed my eye for design yet) ~ 2 hours  
 > >  Testing deploy to pages  
-> >  Creating fake users and posts  
+
+> Day 3: 3 hours  
+> > Adding editing capabilties  
+> > Styling  
+  
+> Day 4: 4 hours  
+> > Adding editing capabilties  
+> > Styling 
+
+> Day 5: 1 hour
+> > Adding posts
 
 **Data Format**:
 ```
@@ -48,8 +58,8 @@ post format:
 uuid : {
     username: string
     location: string
-    date: int
     images: [url...]
+    date: int
     text: string
     likes: int
     comments: [{

@@ -1,0 +1,6 @@
+target/
+**/node_modules/
+package-lock.json
+wrangler.toml
+workers/dist
+workers/worker

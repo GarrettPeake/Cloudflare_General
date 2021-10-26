@@ -4,13 +4,13 @@ export default class Comment extends React.Component {
 
     constructor(props){
         super(props);
-        this.state = {user: {name: 'NA', pfp: 'NA', loaded: false}, data: props.content};
+        this.state = {user: {name: '', pfp: '', loaded: false}, data: props.content};
     }
 
     componentDidMount(){
         if (!this.state.user.loaded) {
             fetch("https://general.gepeake.workers.dev/users/" + this.state.data.username, {method: 'GET'})
-            .then(response => response.json()).then(data => JSON.parse(data.data.users[0])).then(data => {
+            .then(response => response.json()).then(data => data.data.users[0]).then(data => {
                 if(data !== null)
                     this.setState({
                         user: {
@@ -30,7 +30,7 @@ export default class Comment extends React.Component {
                     { this.state.user.loaded ?
                         <img alt='Poster profile' className='rounded-full w-6 h-6 mr-2' src={this.state.user.pfp}/>
                     : <div className='bg-gray-400 rounded-full w-6 h-6 flex items-center justify-center mr-2'>
-                        <i class="fas fa-user text-gray-200 text-sm text-center"/>
+                        <i className="fas fa-user text-gray-200 text-sm text-center"/>
                     </div> }
                     <div className='flex flex-col'>
                         <div className='flex items-baseline'>

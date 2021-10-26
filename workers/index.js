@@ -6,36 +6,34 @@ addEventListener("fetch", event => {
 
 async function handleRequest(request) {
     // Extract useful data
-    var body_data = {};
-    try{
-        body_data = await request.json();
-    } catch (error) {
-        body_data = {}
-        console.log("No body provided or not in JSON format");
-    }
+    const body = await request.json().catch(e => null) || {}
     const req_url = new URL(request.url);
-    const body = body_data;
     const method = request.method;
     const route = req_url.pathname.split('/');
     const endpoint = route[1];
     const id = route.length === 3 ? route[2] : null;
-    console.log('BODY: ',body);
+    console.log('BODY: ', body);
     console.log('METHOD: ', method);
     console.log('ENDPOINT: ', endpoint);
     console.log('ID: ', id);
     
     // Handle requests for favicon (web browser requests it)
     if(endpoint == 'favicon.ico')
-        return new format_response(404, 'error', {message: 'No favicon resource'});
+        return (await format_response(404, 'error', {message: 'No favicon resource'}));
+
+    // Handle preflight requests
+    if(method === 'OPTIONS')
+        return format_response(null, null, null, {}, true);
 
     // Delegate requests to different endpoints
     if (endpoint === 'posts' && method === "GET") return posts_GET(body, id);
+    if (endpoint === 'posts' && method === "PUT") return posts_PUT(body, id);
     if (endpoint === 'posts' && method === "POST") return posts_POST(body, id);
     if (endpoint === 'users' && method === "GET") return users_GET(body, id);
     if (endpoint === 'users' && method === "POST") return users_POST(body, id);
     
     // If delegation fails, return a not found response
-    return new format_response(404, 'error', {message: 'Resource or method not found'});
+    return (await format_response(404, 'error', {message: 'Resource or method not found'}));
 }
 
 /**
@@ -44,15 +42,21 @@ async function handleRequest(request) {
  * @param {string} statusType Response status success, fail, or error
  * @param {json} data Json data structure providing reuqested data
  * @param {json} headers Optional: http headers for response
+ * @param {bool} preflight specifies whether this is an options response
  * @returns formatted Repsonse object
  */
-async function format_response(statusCode, statusType, data, headers={}){
+async function format_response(statusCode, statusType, data, headers={}, preflight=false){
     headers['Access-Control-Allow-Headers'] = '*';
-    headers['Access-Control-Allow-Methods'] = 'GET, POST';
+    headers['Access-Control-Allow-Methods'] = '*';
+    headers['Allow'] = '*';
     headers['Access-Control-Allow-Origin'] = '*';
-    return new Response(JSON.stringify({status: statusType, data: data}), {
+    if(!preflight)
+        return new Response(JSON.stringify({status: statusType, data: data}), {
+            headers: headers,
+            status: statusCode
+        });
+    return new Response(null, {
         headers: headers,
-        status: statusCode
     });
 }
 
@@ -63,25 +67,39 @@ async function format_response(statusCode, statusType, data, headers={}){
  * @returns formatted Response object
  */
 async function posts_GET(body, id){
-    var data = {posts: []};
+    var data = {posts: {}};
     var post_ids = id ? {keys: [{name: id}]} : await POSTS.list();
     for (const element of post_ids.keys) {
         const value = await POSTS.get(element.name);
-        data.posts.push(JSON.parse(value));
+        data.posts[element.name] = JSON.parse(value);
     }
-    return format_response(200, 'success', data);
+    return (await format_response(200, 'success', data));
 }
 
 /**
- * Adds a post to the databse
+ * Catchall function for editing posts (rather than having a comments endpoint in addition)
  * @param {json} body body of the request
  * @param {string} id a potential id for the resource
  * @returns formatted Response object
  */
-async function posts_POST(body, id){
+async function posts_PUT(body, id){
+    if(POSTS.get(id)){
+        await POSTS.put(id, JSON.stringify(body));
+        return (await format_response(201, 'success', {'message': 'post edited with id ' + String(id)}));
+    } else
+        return (await format_response(400, 'fail', {'message': 'no post exists with id ' + String(id)}));
+}
+
+/**
+ * Creates a post in the database
+ * @param {json} body body of the request
+ * @returns formatted Response object
+ */
+ async function posts_POST(body, id){
     const new_id = uuid();
+    body.date = Math.floor(Date.now()/1000);
     await POSTS.put(new_id, JSON.stringify(body));
-    return format_response(201, 'success', {'message': 'post created with id ' + String(new_id)});
+    return (await format_response(201, 'success', {'message': 'post created with id ' + String(new_id)}));
 }
 
 /**
@@ -97,7 +115,7 @@ async function posts_POST(body, id){
         const value = await USERS.get(element.name);
         data.users.push(JSON.parse(value));
     }
-    return format_response(200, 'success', data);
+    return (await format_response(200, 'success', data));
 }
 
 /**
@@ -108,5 +126,5 @@ async function posts_POST(body, id){
  */
 async function users_POST(body, id){
     await USERS.put(id, JSON.stringify(body));
-    return format_response(201, 'success', {'message': 'user created with id ' + String(new_id)});
+    return (await format_response(201, 'success', {'message': 'user created with id ' + String(new_id)}));
 }
