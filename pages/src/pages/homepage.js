@@ -7,7 +7,7 @@ export default class HomePage extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {posts: {}, loaded: false, adding: false};
+        this.state = {posts: [], loaded: false, adding: false};
     }
 
     render() {
@@ -20,19 +20,21 @@ export default class HomePage extends React.Component {
                     </button>
                     {this.state.adding ?
                         <Post post_id={''} content={{
-                            username: "auth_placeholder",
+                            username: window.location.pathname.substr(1) || 'cloudflarerecruiting',
                             location: "",
                             images: [''],
                             text: "",
                             likes: 0,
                             comments: []
                         }} editing={true}/>
-                    : null}
+                    : null} {/** Add a temporary editable post whose submit will trigger POST */}
                     {this.state.loaded ?
-                        Object.keys(this.state.posts).map(post_key => {
-                            return <Post content={this.state.posts[post_key]} editing={false} post_id={post_key} key={post_key}/>
+                        this.state.posts.sort((a,b) => {
+                            return b.date - a.date // Sort in reverse chronological order
+                        }).map(post => {
+                            return <Post content={post} editing={false} post_id={post.post_key} key={post.post_key}/>
                         })
-                    : <p className='text-center'>Nothing to see yet, post something or check back later! </p> }
+                    : <p className='text-center'>Loading posts...</p> }
                 </div>
             </>
         )
@@ -44,7 +46,12 @@ export default class HomePage extends React.Component {
             .then(response => response.json()).then(data => {
                 console.log(data)
                 this.setState({
-                    posts: data.data.posts,
+                    posts: Object.keys(data.data.posts).map(post_key => { 
+                        // Turn the dict into a list of dict with the keys included to allow for sorting
+                        var post_with_key = data.data.posts[post_key];
+                        post_with_key.key = post_key
+                        return post_with_key
+                    }),
                     loaded: true
                 });
             });

@@ -7,6 +7,9 @@ export default class Comment extends React.Component {
         this.state = {user: {name: '', pfp: '', loaded: false}, data: props.content};
     }
 
+    /**
+     * Load users when comment is created
+     */
     componentDidMount(){
         if (!this.state.user.loaded) {
             fetch("https://general.gepeake.workers.dev/users/" + this.state.data.username, {method: 'GET'})
