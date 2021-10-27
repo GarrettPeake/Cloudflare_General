@@ -49,7 +49,7 @@ export default class HomePage extends React.Component {
                     posts: Object.keys(data.data.posts).map(post_key => { 
                         // Turn the dict into a list of dict with the keys included to allow for sorting
                         var post_with_key = data.data.posts[post_key];
-                        post_with_key.key = post_key
+                        post_with_key.post_key = post_key
                         return post_with_key
                     }),
                     loaded: true

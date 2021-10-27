@@ -80,7 +80,7 @@ export default class Post extends React.Component {
      */
     updateRemote(refresh){
         // Allow changing users by just changing path, since auth is not implemented
-        const user = window.location.pathname.substr(1) || 'cloudflarerecruiting';
+        const user = this.state.data.username || window.location.pathname.substr(1) || 'cloudflarerecruiting';
         // Remove empty images
         const newImages = this.state.data.images.filter(item => item);
         // Increment likes
@@ -88,19 +88,20 @@ export default class Post extends React.Component {
         // Add data.newComment
         var newComments = null
         if(this.state.data.newComment)
-            newComments = this.state.data.comments.concat([{username: user, text: this.state.data.newComment}])
+            newComments = this.state.data.comments.concat([{username: this.state.data.commenter, text: this.state.data.newComment}])
         // Assemble new object
         const newData = {
             username: user,
             location: this.state.data.location,
             images: newImages,
+            date: this.state.data.date,
             text: this.state.data.text,
             likes: newLikes,
             comments: newComments || this.state.data.comments
         }
         // POST or PUT based on whether there's an ID the object to remote
         const METHOD = this.props.post_id ? 'PUT' : 'POST';
-        console.log(METHOD);
+        console.log(METHOD, this.props);
         fetch("https://general.gepeake.workers.dev/posts/" + this.props.post_id, {
             method: METHOD,
             body: JSON.stringify(newData),
@@ -168,6 +169,11 @@ export default class Post extends React.Component {
         const value = target.value;
         const name = target.name;
         var newData = {}
+        if(name === 'newComment'){ // If a comment is being created, set the correct user
+            this.setState({
+                data: {...this.state.data, commenter: window.location.pathname.substr(1) || 'cloudflarerecruiting'}
+            });
+        }
         if(name.substr(0, 5) === 'image'){
             var currImages = this.state.data.images
             if(name.substr(6, name.length) === 'new'){
