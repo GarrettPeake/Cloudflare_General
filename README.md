@@ -7,15 +7,12 @@ The site is live at cloudflare-general.pages.dev
 
 ### The Process
 
-**Issues**:  
-* The OAuth page for wrangler had CORS errors, this should probably be fixed
-* Generating workers api keys wasn't possible as it would just throw errors
-
 **Cool things I learned**:
 * Workers don't have cold starts!
 * Pages offers the same features with higher free caps than Netlify
 * Tailwind CSS is AWESOME
-* You can push to two remote repos at once
+* You can push to two git repos at once
+* This makes for a pretty cool portfolio site!
 
 **Time this took**: Around 8 hours for the minimum, another 10 because I started having fun and thought it'd make a good portfolio piece
 > Day 1: 6 hours   

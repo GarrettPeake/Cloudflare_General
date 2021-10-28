@@ -11,7 +11,7 @@ export default class HomePage extends React.Component {
     }
 
     render() {
-        const visitor = window.location.pathname.substr(1) || ''
+        const visitor = window.location.pathname.substr(1) || '' // Handles 'login'
         return (
             <>
                 <AppBar />

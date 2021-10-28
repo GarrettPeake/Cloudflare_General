@@ -16,20 +16,20 @@ html, body, #root{
     height: 4px;
   }
   
-  ::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     border-radius: 100vh;
     background: transparent;
-  }
-  
-  ::-webkit-scrollbar-thumb {
+}
+
+::-webkit-scrollbar-thumb {
     background: #575c68;
     border-radius: 100vh;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
+}
+
+::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
-  }
+}
 
 .title-font{
-  font-family: 'Henny Penny', cursive;
+    font-family: 'Henny Penny', cursive;
 }
