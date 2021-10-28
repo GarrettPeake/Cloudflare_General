@@ -22,8 +22,26 @@ export default class Post extends React.Component {
         this.updateRemote = this.updateRemote.bind(this);
         this.removeImage = this.removeImage.bind(this);
         this.addImage = this.addImage.bind(this);
+        this.urlify = this.urlify.bind(this);
     }
 
+    /**
+     * Takes in a string and highlights the links using <a> tags
+     * @param {string} content Content to be converted into JSX with highlighted links
+     * @returns 
+     */
+    urlify(content){
+        const URL_REGEX = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+        return <>{
+            content.split(" ").map(bit => {
+                return URL_REGEX.test(bit) ? <a className="text-purple-400" href={bit}>{bit} </a> : bit + " "
+            })
+        }</>
+    }
+
+    /**
+     * Toggles editing on or off for the post
+     */
     toggleEditing(){
         var current = this.state.editing
         this.setState({editing: !current});
@@ -31,7 +49,7 @@ export default class Post extends React.Component {
 
     /**
      * Called when you save your edits
-     * Turns of editing move and updates the database
+     * Turns off editing mode and updates the database
      */
     submit(){
         this.toggleEditing();
@@ -96,6 +114,7 @@ export default class Post extends React.Component {
             likes: newLikes,
             comments: newComments
         }
+        // Post or put the new data to the remote
         const METHOD = this.props.post_id ? 'PUT' : 'POST';
         console.log('Fetching',METHOD, newData);
         fetch("https://general.gepeake.workers.dev/posts/" + this.props.post_id, {
@@ -208,7 +227,7 @@ export default class Post extends React.Component {
                     </div>
                     {/** Displays the body of the post */}
                     <div className='flex flex-col p-4 w-full'>
-                        <p className='text-gray-200 border-l-2 p-2 text-left break-words'>{this.state.data.text}</p>
+                        <p className='text-gray-200 border-l-2 p-2 text-left break-words'>{this.urlify(this.state.data.text)}</p>
                         {this.getCarousel()}
                     </div>
                  </> : <> {/** Essentially the same HTML as above but with inputs and different formatting */}
