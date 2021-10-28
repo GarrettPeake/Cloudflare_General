@@ -11,6 +11,7 @@ export default class HomePage extends React.Component {
     }
 
     render() {
+        const visitor = window.location.pathname.substr(1) || ''
         return (
             <>
                 <AppBar />
@@ -20,7 +21,7 @@ export default class HomePage extends React.Component {
                     </button>
                     {this.state.adding ?
                         <Post post_id={''} content={{
-                            username: window.location.pathname.substr(1) || 'cloudflarerecruiting',
+                            username: visitor,
                             location: "",
                             images: [''],
                             text: "",
@@ -32,7 +33,7 @@ export default class HomePage extends React.Component {
                         this.state.posts.sort((a,b) => {
                             return b.date - a.date // Sort in reverse chronological order
                         }).map(post => {
-                            return <Post content={post} editing={false} post_id={post.post_key} key={post.post_key}/>
+                            return <Post content={post} editing={false} post_id={post.post_key} visitor={visitor} key={post.post_key}/>
                         })
                     : <p className='text-center'>Loading posts...</p> }
                 </div>
@@ -44,7 +45,6 @@ export default class HomePage extends React.Component {
         if (!this.state.loaded) {
             fetch("https://general.gepeake.workers.dev/posts", {method: 'GET'})
             .then(response => response.json()).then(data => {
-                console.log(data)
                 this.setState({
                     posts: Object.keys(data.data.posts).map(post_key => { 
                         // Turn the dict into a list of dict with the keys included to allow for sorting

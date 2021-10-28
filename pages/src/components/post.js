@@ -11,9 +11,9 @@ export default class Post extends React.Component {
             data: props.content,
             editing: props.editing,
             liked: false,
-            commenting: false
+            commenting: false,
+            visitor: props.visitor
         };
-        console.log(this.state.data);
         this.getCarousel = this.getCarousel.bind(this);
         this.toggleEditing = this.toggleEditing.bind(this);
         this.submit = this.submit.bind(this);
@@ -46,8 +46,7 @@ export default class Post extends React.Component {
     like(){
         this.setState({
             liked: !this.state.liked
-        });
-        this.updateRemote(false);
+        }, ()=>{this.updateRemote(false)});
     }
 
     /**
@@ -79,34 +78,31 @@ export default class Post extends React.Component {
      * Formats the post and pushes the changes to the DB
      */
     updateRemote(refresh){
-        // Allow changing users by just changing path, since auth is not implemented
-        const user = this.state.data.username || window.location.pathname.substr(1) || 'cloudflarerecruiting';
         // Remove empty images
         const newImages = this.state.data.images.filter(item => item);
         // Increment likes
         const newLikes = this.state.data.likes + this.state.liked
         // Add data.newComment
-        var newComments = null
-        if(this.state.data.newComment)
-            newComments = this.state.data.comments.concat([{username: this.state.data.commenter, text: this.state.data.newComment}])
+        var newComments = this.state.data.comments
+        if(this.state.data.newComment && this.state.visitor)
+            newComments = newComments.concat([{username: this.state.visitor, text: this.state.data.newComment}])
         // Assemble new object
         const newData = {
-            username: user,
+            username: this.state.data.username,
             location: this.state.data.location,
             images: newImages,
             date: this.state.data.date,
             text: this.state.data.text,
             likes: newLikes,
-            comments: newComments || this.state.data.comments
+            comments: newComments
         }
-        // POST or PUT based on whether there's an ID the object to remote
         const METHOD = this.props.post_id ? 'PUT' : 'POST';
-        console.log(METHOD, this.props);
+        console.log('Fetching',METHOD, newData);
         fetch("https://general.gepeake.workers.dev/posts/" + this.props.post_id, {
             method: METHOD,
             body: JSON.stringify(newData),
         }).then(response => response.json()).then(data => {
-            console.log(data);
+            console.log('Response', data);
             if(refresh)
                 document.location.reload();
         });
@@ -169,11 +165,6 @@ export default class Post extends React.Component {
         const value = target.value;
         const name = target.name;
         var newData = {}
-        if(name === 'newComment'){ // If a comment is being created, set the correct user
-            this.setState({
-                data: {...this.state.data, commenter: window.location.pathname.substr(1) || 'cloudflarerecruiting'}
-            });
-        }
         if(name.substr(0, 5) === 'image'){
             var currImages = this.state.data.images
             if(name.substr(6, name.length) === 'new'){
@@ -211,7 +202,9 @@ export default class Post extends React.Component {
                                 <p className=' text-gray-400'>{this.state.data.location}</p>
                             </div>
                         </div>
-                        <button className='ml-auto' onClick={this.toggleEditing}><i className="fas fa-edit text-2xl text-gray-600"></i></button>
+                        {this.state.visitor === this.state.data.username ?
+                            <button className='ml-auto' onClick={this.toggleEditing}><i className="fas fa-edit text-2xl text-gray-600"></i></button>
+                        :null}
                     </div>
                     {/** Displays the body of the post */}
                     <div className='flex flex-col p-4 w-full'>
